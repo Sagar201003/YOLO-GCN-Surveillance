@@ -9,8 +9,8 @@ The architectural scaffolding and computer vision pipelines are fully implemente
 ### ✅ What is Completed:
 - [x] **Pose Extraction (`yolov8`):** Fully functional person detection and 17-point skeletal mapping.
 - [x] **Multi-Person Tracking (`DeepSORT`):** Fully functional persistent ID assignment across frames.
-- [x] **Data Engineering (`SkeletonBuffer`):** Dynamically chunks live camera data into stable temporal sliding windows (T=30 tensors).
-- [x] **Graph Topology (`graph_construction.py`):** Center-roots coordinate spaces and constructs the physical adjacency matrix.
+- [x] **Data Engineering (`data_processing.py`):** Dynamically chunks live camera data into stable temporal sliding windows (T=30 tensors).
+- [x] **Graph Topology (`data_processing.py`):** Center-roots coordinate spaces and constructs the physical adjacency matrix.
 - [x] **GCN Architecture (`gcn_model.py`):** The ST-GCN forward-pass neural network layout is error-free and locked in.
 - [x] **Inference Scaffold (`inference.py`):** End-to-end framework capturing video, processing pose, and passing data to the model.
 
@@ -28,9 +28,9 @@ This project implements a state-of-the-art Computer Vision architecture designed
 graph TD
     A[Camera Feed / Video] -->|Raw RGB Frames| B(Person Detection & Pose)
     B -->|YOLOv8-Pose: BBoxes + 17 Joints| C(Multi-Person Tracking)
-    C -->|DeepSORT: Stable Track IDs| D(Skeleton Sequence Buffer)
-    D -->|Deque Sliding Window T=30| E(Preprocessing Engineering)
-    E -->|Coordinate Normalizing| F(Graph Construction)
+    C -->|DeepSORT: Stable Track IDs| D(Data Processing: Sequence Buffer)
+    D -->|Deque Sliding Window T=30| E(Data Processing: Coordinate Preprocessing)
+    E -->|Coordinate Normalizing| F(Data Processing: Graph Construction)
     F -->|COCO Topology Matrix 'A'| G[Graph Convolutional Network]
     E -->|N, C, T, V, M Tensors| G
     G -->|Spatial & Temporal Convs| H(Fully Connected Class-Layer)
@@ -49,13 +49,11 @@ By leveraging Ultralytics' `YOLOv8-Pose` native inference, the system captures l
 ### Step 3: `Multi-Person ID Tracking`
 Couples the geometric raw poses directly into a `DeepSORT` appearance tracker via an active Intersect-over-Union (IoU) spatial matching map. Even if a physical frame drops rapidly, or a subject physically overlaps with another, the system assigns a strict continuous `Track_ID` classification logic.
 
-### Step 4: `Neural Skeleton Buffering` 
-GCN models inherently require time-windows mathematically to understand sequential mechanics. The `SkeletonBuffer` actively utilizes dynamic double-ended queues to efficiently slide a sequence-length memory window for *each independent* Track ID, zero/duplicate-padding missing limits intelligently without ghosting the data tensors.
-
-### Steps 5 & 6: `GCN Topological Prep`
-The environment causes severe geometric scaling biases (e.g., subjects further from the lens seem smaller). The `GCNPreprocessor`:
-- Transposes the true $(0, 0)$ coordinate center physically to the human mid-pelvis logic map (center-rooting).
-- Embeds exact anatomical topology structures via `Graph Construction` partitioning the joint nodes using specialized `Centripetal ` and `Centrifugal` Adjacency matrices, assuring the PyTorch model logically respects physical bone geometry bounds.
+### Step 4, 5 & 6: `Data Processing Module` 
+All engineering is handled centrally in `data_processing.py`:
+- **Neural Skeleton Buffering**: Actively utilizes dynamic double-ended queues to efficiently slide a sequence-length memory window for each ID.
+- **Topological Prep**: Transposes the true $(0, 0)$ coordinate center physically to the human mid-pelvis logic map.
+- **Graph Construction**: Partitions joint nodes using specialized `Centripetal ` and `Centrifugal` Adjacency matrices, assuring the PyTorch model logically respects physical bone geometry bounds.
 
 ### Step 7: `Graph Convolutional Action Engine`
 Assembles a rigorous architectural cascade seamlessly combining **`SpatialGraphConvs`** (studying structural layout forms per single frame chunk) and **`TCN_Blocks`** (Temporal Convolutions sliding analytically down the `T` axis). Condenses the high-dimensional abstractions into standard MLP classification.
@@ -78,18 +76,15 @@ graph TD
     subgraph Step-by-Step Educational Flow (Execute top to bottom)
         A[1. person_detection.py]:::testScript -->|Just checking bboxes| B[2. pose_estimation.py]:::testScript
         B -->|Adding 17 Joints| C[3. tracking_and_pose.py]:::testScript
-        C -->|DeepSORT IDs| D[4. skeleton_buffer.py]:::testScript
     end
 
     subgraph Core Logic Libraries (Not run standalone)
-        E[5. preprocessing.py]:::logicScript 
-        F[6. graph_construction.py]:::logicScript --> G[7. gcn_model.py]:::logicScript
+        D[4. data_processing.py]:::logicScript --> G[7. gcn_model.py]:::logicScript
     end
 
     subgraph Production Execution
         C -.->|Tracked Data| H[8. inference.py]:::mainScript
-        D -.->|Temporal Sequences| H
-        E -.->|Normalizing logic| H
+        D -.->|Temporal Sequences & Vectors| H
         G -.->|Neural net architecture| H
     end
 ```
@@ -123,7 +118,7 @@ pip install -r requirements.txt
 You can natively test the exact structural tracking pipeline utilizing your live webcam:
 ```bash
 # Test Skeleton DeepSORT Extraction Buffers (Steps 1 to 4)
-python skeleton_buffer.py
+python data_processing.py
 
 # Run the PyTorch End-to-End Artificial Intelligence Loop (Steps 1 to 8)
 python inference.py

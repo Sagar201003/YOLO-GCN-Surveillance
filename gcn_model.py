@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from graph_construction import Graph
+from data_processing import Graph
 
 class SpatialGraphConv(nn.Module):
     def __init__(self, in_channels, out_channels, K=3):

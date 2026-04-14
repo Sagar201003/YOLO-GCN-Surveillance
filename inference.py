@@ -8,8 +8,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from tracking_and_pose import PoseTracker
-from skeleton_buffer import SkeletonBuffer
-from preprocessing import GCNPreprocessor
+from data_processing import SkeletonBuffer, GCNPreprocessor
 from gcn_model import ActionRecognitionGCN
 
 # Inference Mapping [0 = Normal, 1 = Suspicious]
