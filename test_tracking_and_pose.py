@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from step3_tracking_and_pose import PoseTracker
+from tracking_and_pose import PoseTracker
 
 def test():
     # Initialize

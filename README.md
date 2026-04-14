@@ -1,7 +1,24 @@
 # 🚨 Suspicious Activity Detection using GCN & Computer Vision
 
-> **⚠️ NOTE: THIS PROJECT IS ACTIVELY A WORK IN PROGRESS (WIP).** 
-> The core algorithmic pipeline is built, and the neural network graph geometry is securely locked in. The next major integration phases currently involve dataset sourcing, PyTorch backpropagation training, and ultimately hooking the final trained `.pth` intelligence weights into the real-time operational tracker!
+## 🚧 Project Status & Roadmap (WIP)
+
+**⚠️ NOTE: THIS PROJECT IS ACTIVELY A WORK IN PROGRESS.**
+
+The architectural scaffolding and computer vision pipelines are fully implemented, but the AI's "brain" requires training before it can accurately classify activities.
+
+### ✅ What is Completed:
+- [x] **Pose Extraction (`yolov8`):** Fully functional person detection and 17-point skeletal mapping.
+- [x] **Multi-Person Tracking (`DeepSORT`):** Fully functional persistent ID assignment across frames.
+- [x] **Data Engineering (`SkeletonBuffer`):** Dynamically chunks live camera data into stable temporal sliding windows (T=30 tensors).
+- [x] **Graph Topology (`graph_construction.py`):** Center-roots coordinate spaces and constructs the physical adjacency matrix.
+- [x] **GCN Architecture (`gcn_model.py`):** The ST-GCN forward-pass neural network layout is error-free and locked in.
+- [x] **Inference Scaffold (`inference.py`):** End-to-end framework capturing video, processing pose, and passing data to the model.
+
+### ⏳ What is Left to Do (Next Steps):
+- [ ] **Dataset Acquisition:** Sourcing a labeled dataset of normal vs. suspicious actions (e.g., UCF-Crime, NTU-RGB+D, or custom collected).
+- [ ] **Training Loop Generation (`train.py`):** Building the PyTorch backpropagation script to compute loss and train the model weights.
+- [ ] **Model Optimization:** Actually training the architecture to achieve high validation accuracy.
+- [ ] **Final Deployment:** Saving the trained state dictionary (`.pth`) and loading it into `inference.py` to enable live, intelligent detection.
 
 This project implements a state-of-the-art Computer Vision architecture designed to detect **suspicious activities** (such as violence, theft, or unusual rapid motion) directly from live camera feeds or recorded videos. It systematically discards environmental visual noise and exclusively parses isolated human anatomical motion using a sophisticated Graph Convolutional Network (GCN).
 
@@ -48,6 +65,41 @@ Operates the entire logic cascade live over webcam captures natively, parsing lo
 
 ---
 
+## 📁 Execution & File Interaction Flow
+
+While `inference.py` acts as the master script, the ecosystem is built modularly. You can run the files in chronological order (from Steps 1 to 8) to see the pipeline continuously abstracting visual data into action metrics.
+
+```mermaid
+graph TD
+    classDef mainScript fill:#ff4757,stroke:#fff,stroke-width:3px,color:#fff;
+    classDef testScript fill:#1e90ff,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef logicScript fill:#2ed573,stroke:#fff,stroke-width:2px,color:#fff;
+
+    subgraph Step-by-Step Educational Flow (Execute top to bottom)
+        A[1. person_detection.py]:::testScript -->|Just checking bboxes| B[2. pose_estimation.py]:::testScript
+        B -->|Adding 17 Joints| C[3. tracking_and_pose.py]:::testScript
+        C -->|DeepSORT IDs| D[4. skeleton_buffer.py]:::testScript
+    end
+
+    subgraph Core Logic Libraries (Not run standalone)
+        E[5. preprocessing.py]:::logicScript 
+        F[6. graph_construction.py]:::logicScript --> G[7. gcn_model.py]:::logicScript
+    end
+
+    subgraph Production Execution
+        C -.->|Tracked Data| H[8. inference.py]:::mainScript
+        D -.->|Temporal Sequences| H
+        E -.->|Normalizing logic| H
+        G -.->|Neural net architecture| H
+    end
+```
+
+**What to Run?**
+1. **To learn the mechanics**: Run `person_detection.py`, then `pose_estimation.py`, etc., sequentially to see how the mathematical tensors build up! 
+2. **To deploy the actual AI**: Run **`inference.py`** — it is the master commander script that orchestrates all the underlying logic libraries.
+
+---
+
 ## 🚀 How to Run Locally
 
 ### 1. Setup the Virtual Environment
@@ -71,10 +123,10 @@ pip install -r requirements.txt
 You can natively test the exact structural tracking pipeline utilizing your live webcam:
 ```bash
 # Test Skeleton DeepSORT Extraction Buffers (Steps 1 to 4)
-python step4_skeleton_buffer.py
+python skeleton_buffer.py
 
 # Run the PyTorch End-to-End Artificial Intelligence Loop (Steps 1 to 8)
-python step8_inference.py
+python inference.py
 ```
 
 ---

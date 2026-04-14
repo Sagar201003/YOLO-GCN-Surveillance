@@ -7,10 +7,10 @@ import warnings
 # Suppress minor dependency warnings internally for a cleaner terminal
 warnings.filterwarnings('ignore')
 
-from step3_tracking_and_pose import PoseTracker
-from step4_skeleton_buffer import SkeletonBuffer
-from step5_preprocessing import GCNPreprocessor
-from step7_gcn_model import ActionRecognitionGCN
+from tracking_and_pose import PoseTracker
+from skeleton_buffer import SkeletonBuffer
+from preprocessing import GCNPreprocessor
+from gcn_model import ActionRecognitionGCN
 
 # Inference Mapping [0 = Normal, 1 = Suspicious]
 CLASS_LABELS = {0: "Normal", 1: "Suspicious"}

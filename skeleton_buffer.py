@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from collections import deque
-from step3_tracking_and_pose import PoseTracker
+from tracking_and_pose import PoseTracker
 
 class SkeletonBuffer:
     def __init__(self, max_frames=30, num_joints=17, num_channels=3):
