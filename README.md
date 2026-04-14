@@ -48,6 +48,37 @@ Operates the entire logic cascade live over webcam captures natively, parsing lo
 
 ---
 
+## 🚀 How to Run Locally
+
+### 1. Setup the Virtual Environment
+It is highly recommended to run this inside an isolated virtual environment to securely prevent PyTorch library mapping conflicts.
+```bash
+python -m venv venv
+
+# On Windows:
+.\venv\Scripts\activate
+
+# On Mac/Linux:
+source venv/bin/activate
+```
+
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the Live Architecture
+You can natively test the exact structural tracking pipeline utilizing your live webcam:
+```bash
+# Test Skeleton DeepSORT Extraction Buffers (Steps 1 to 4)
+python step4_skeleton_buffer.py
+
+# Run the PyTorch End-to-End Artificial Intelligence Loop (Steps 1 to 8)
+python step8_inference.py
+```
+
+---
+
 ## 💻 Technical Dependency Stack
 * `PyTorch` (Backbone Neural Network Engine)
 * `Ultralytics` (YOLO Pretrained Weights)
